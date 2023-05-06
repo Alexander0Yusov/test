@@ -1,0 +1,16 @@
+<div>
+  <div class='container'>
+    <svg height='50' width='50' aria-label='flagIcon'>
+      <use href={{flags.svg}}></use>
+    </svg>
+    <p class='name'>{{name.official}}</p>
+  </div>
+  <p class='capital'>Capital: {{capital}}</p>
+  <p class='population'>Population: {{population}}</p>
+  <ul>
+    {{#each languages}}
+      <li>{{languages.language}}</li>
+    {{/each}}
+  </ul>
+
+</div>
