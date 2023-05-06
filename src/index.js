@@ -3,6 +3,9 @@ import Notiflix from 'notiflix';
 const debounce = require('lodash.debounce');
 import apiService from './js/fetchCountries';
 import { firstWay, secondWay, clearEl } from './js/markup';
+import { stopSpinner } from './js/loader';
+
+// import { startSpinner, stopSpinner } from './js/loader';
 
 const api = new apiService();
 const DEBOUNCE_DELAY = 300;
@@ -56,5 +59,10 @@ function onInput(e) {
       .catch(e => {
         console.log(e.message);
       })
-      .finally(() => {});
+      .finally(() => {
+        stopSpinner();
+      });
 }
+
+// console.log('hi');
+// window.addEventListener('load', stopSpinner);
