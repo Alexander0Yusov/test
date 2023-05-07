@@ -61,6 +61,14 @@ li .name {
   font-weight: 600;
 }
 
+/* =============form-film============= */
+
+.formBtn {
+  width: 44px;
+  height: 20px;
+}
+/* =================================== */
+
 .loader {
   position: fixed;
   z-index: 1000;
@@ -71,7 +79,7 @@ li .name {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.2);
   overflow-y: scroll;
   opacity: 1;
   transition: opacity 400ms linear;
