@@ -87,11 +87,11 @@ export class Api {
     if (keys.length !== 0) {
       for (const key of keys) {
         if (
-          ((key === 'year' ||
+          (key === 'year' ||
             key === 'query' ||
             key === 'page' ||
             key === 'language') &&
-            obj[key]) !== null
+          obj[key] !== null
         ) {
           str += `&${key}=${obj[key]}`;
         }

@@ -11,33 +11,70 @@
     <ul class="country-list"></ul>
     <div class="country-info"></div>
 
-    <form class="filmForm">
-      <label>
-        <span>Film</span>
+    <form class="filmFormWide">
+      <p class="filmFormWide__film-p">
         <input
+          class="filmFormWide__film-input"
           type="text"
-          name="title"
+          name="query"
           title="Enter Film Title please"
           required
+          placeholder="Film"
+          autocomplete="onn"
         />
-      </label>
+        />
+        <label class="filmFormWide__film-label" for="query">Film</label>
+      </p>
 
-      <label>
+      <p class="filmFormWide__year-p">
+        <input
+          class="filmFormWide__year-input"
+          type="text"
+          name="year"
+          title="Enter Year please"
+          placeholder="Year"
+        />
+        <label class="filmFormWide__year-label" for="year">Year</label>
+      </p>
+
+      <!-- <label>
         <span>Year</span>
         <input type="text" name="year" />
-      </label>
+      </label> -->
 
-      <label>
+      <p class="filmFormWide__genre-p">
+        <input
+          class="filmFormWide__genre-input"
+          type="text"
+          name="genre"
+          title="Enter Genre please"
+          placeholder="Genre"
+        />
+        <label class="filmFormWide__genre-label" for="genre">Genre</label>
+      </p>
+
+      <!-- <label>
         <span>Genre</span>
         <input type="text" name="genre" />
-      </label>
+      </label> -->
 
-      <label>
+      <p class="filmFormWide__country-p">
+        <input
+          class="filmFormWide__country-input"
+          type="text"
+          name="country"
+          title="Enter Country please"
+          placeholder="Country"
+        />
+        <label class="filmFormWide__country-label" for="country">Country</label>
+      </p>
+
+      <!-- <label>
         <span>Country</span>
         <input type="text" name="country" />
-      </label>
+      </label> -->
 
-      <button class="formBtn" type="submit"></button>
+      <button class="filmFormWide__btn" type="submit"></button>
     </form>
 
     <script src="index.js" type="module"></script>

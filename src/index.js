@@ -45,19 +45,17 @@ https://api.themoviedb.org/3/genre/movie/list?api_key=225e339996bc91260b33199c38
 
 */
 
-const form = document.querySelector('.filmForm');
+const form = document.querySelector('.filmFormWide');
 const formFilmStorage = {};
 
 form.addEventListener('submit', onSubmit);
 
-form.title.addEventListener('input', e => {
+form.query.addEventListener('input', e => {
   // console.log('find by Title: ', e.target.value);
-  searchData.query = e.target.value;
 });
 
 form.year.addEventListener('input', e => {
   // console.log('filter by Year: ', e.target.value);
-  searchData.year = e.target.value;
 });
 
 form.genre.addEventListener('input', e => {
@@ -65,56 +63,55 @@ form.genre.addEventListener('input', e => {
   const tmp = findGenreId(e.target.value);
   if (tmp) {
     console.log(tmp);
-    searchData.genre = tmp;
   }
 });
 
-form.country.addEventListener('input', e => {
-  console.log('filter by Country: ', e.target.value);
-  const str = `https://restcountries.com/v3.1/name/${e.target.value}?fields=name,capital,population,flags,languages`;
-  fetch(str)
-    .then(r => r.json())
-    .then(r => {
-      if (r.length === 1) {
-        searchData.code = findLanguageCode(findObjFirstValue(r[0].languages));
-        searchData.CODE = findCountryCode(r[0].name.common);
-
-        console.log(searchData);
-        console.log(r[0].name.common);
+form.country.addEventListener('input', async e => {
+  // console.log('filter by Country: ', e.target.value);
+  if (e.target.value) {
+    try {
+      const res = await getAssistentCountries(e.target.value);
+      if (res.status) {
+        throw new Error(`Error! status: ${res.status}`);
       }
-    });
+      const country = res.map(item => item.name.common);
+      console.log('Input | ', country);
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
 });
 
 // SUBMIT
-function onSubmit(e) {
-  searchData.CODE =
-    searchData.code =
-    searchData.genre =
-    searchData.query =
-    searchData.year =
-      null;
-
+async function onSubmit(e) {
   e.preventDefault();
-  const a = new Api();
+  const { query, year, genre, country } = e.currentTarget.elements;
+
+  const { code, CODE } = await getCodeLang_CodeCountry(country.value);
+
+  const genreId = findGenreId(genre.value);
+
+  searchData.query = query.value;
+  searchData.year = year.value;
+  searchData.genre = genreId;
+  searchData.code = code;
+  searchData.CODE = CODE;
+
   startSpinner();
 
-  if (form.title.value !== '' || form.year.value !== '') {
-    a.searhByNameYearCountry({
-      query: searchData.query,
-      year: searchData.year,
-      language: `${searchData.code}-${searchData.CODE}`,
-    })
-      .then(res => {
-        console.log(res);
-      })
-      .finally(() => {
-        stopSpinner();
-      });
-  }
+  const res = await getDataFromDB(query.value, year.value, code, CODE, 1);
+  // console.log(res);
 
-  // getAllGenres();
-  // getAllCountries();
-  // console.log(form.film.value);
+  stopSpinner();
+
+  // createFirstGalleryPart(res, genreId);
+
+  // searchData.query =
+  //   searchData.year =
+  //   searchData.genre =
+  //   searchData.code =
+  //   searchData.CODE =
+  //     null;
 }
 
 function getAllGenres() {
@@ -161,7 +158,88 @@ function findGenreId(genre) {
   if (result) return result.id;
 }
 
-function nme(params) {}
+async function getCodeLang_CodeCountry(country) {
+  if (country) {
+    const str = `https://restcountries.com/v3.1/name/${country}?fields=name,languages`;
+    const res = await fetch(str);
+    const obj = await res.json();
+
+    if (obj[0]) {
+      return {
+        code: findLanguageCode(findObjFirstValue(obj[0].languages)),
+        CODE: findCountryCode(obj[0].name.common),
+      };
+    } else {
+      return {
+        code: null,
+        CODE: null,
+      };
+    }
+  } else
+    return {
+      code: null,
+      CODE: null,
+    };
+}
+
+async function getAssistentCountries(tryWriteCountry) {
+  const str = `https://restcountries.com/v3.1/name/${tryWriteCountry}?fields=name`;
+  const res = await fetch(str);
+  return res.json();
+}
+
+function filterByGenre(array, genreId) {
+  if (array.length !== 0) {
+    return array.filter(item => item.genre_ids.includes(genreId));
+  }
+}
+
+async function getDataFromDB(query, year, code, CODE, page) {
+  const a = new Api();
+  try {
+    const response = await a.searhByNameYearCountry({
+      query: query || null,
+      year: year || null,
+      language: code && CODE && `${code}-${CODE}`,
+      page: page,
+    });
+    if (response.status) {
+      throw new Error(`Error! status: ${response.status}`);
+    }
+    return await response;
+  } catch (err) {
+    console.log(err.message);
+  }
+}
+
+async function createFirstGalleryPart(res, genreId) {
+  const { query, year, genre, code, CODE } = searchData;
+  const { page, results, total_pages, total_results } = res;
+  let currentPage = page;
+
+  const firstGalleryPart = [];
+  firstGalleryPart.push(...filterByGenre(results, genreId));
+
+  do {
+    if (firstGalleryPart.length < 10) {
+      currentPage++;
+      const additionResponse = await getDataFromDB(
+        query,
+        year,
+        code,
+        CODE,
+        currentPage
+      );
+
+      const hasValidGenre = filterByGenre(additionResponse.results, genreId);
+      console.log('hasValidGenre', hasValidGenre.length);
+      // await new Promise(r => setTimeout(r, 1000));
+      // firstGalleryPart.push(...hasValidGenre);
+    }
+  } while (currentPage !== total_pages);
+
+  console.log(firstGalleryPart);
+}
 
 //=========================================================
 
